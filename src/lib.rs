@@ -6,7 +6,7 @@ use std::str::FromStr;
 /// An ETIN is assigned by the IRS to authorized electronic return transmitters.
 /// It is always exactly 5 ASCII digits (e.g. `"00111"`).
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct Etin([u8; 5]);
+pub struct Etin(String);
 
 /// Error returned when an ETIN string is invalid.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -30,8 +30,7 @@ impl Etin {
 
     /// Return the ETIN as a `&str`.
     pub fn as_str(&self) -> &str {
-        // SAFETY: we only store ASCII digits.
-        unsafe { std::str::from_utf8_unchecked(&self.0) }
+        &self.0
     }
 }
 
@@ -39,11 +38,8 @@ impl FromStr for Etin {
     type Err = ParseEtinError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let bytes = s.as_bytes();
-        if bytes.len() == 5 && bytes.iter().all(|b| b.is_ascii_digit()) {
-            let mut arr = [0u8; 5];
-            arr.copy_from_slice(bytes);
-            Ok(Self(arr))
+        if s.len() == 5 && s.bytes().all(|b| b.is_ascii_digit()) {
+            Ok(Self(s.to_owned()))
         } else {
             Err(ParseEtinError { _private: () })
         }
@@ -52,13 +48,13 @@ impl FromStr for Etin {
 
 impl fmt::Display for Etin {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(self.as_str())
+        f.write_str(&self.0)
     }
 }
 
 impl AsRef<str> for Etin {
     fn as_ref(&self) -> &str {
-        self.as_str()
+        &self.0
     }
 }
 
