@@ -5,18 +5,21 @@ use std::str::FromStr;
 ///
 /// An ETIN is assigned by the IRS to authorized electronic return transmitters.
 /// It is always exactly 5 ASCII digits (e.g. `"00111"`).
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Etin(String);
 
 /// Error returned when an ETIN string is invalid.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ParseEtinError {
-    _private: (),
+pub enum ParseEtinError {
+    /// The input was not exactly 5 ASCII digits.
+    Invalid,
 }
 
 impl fmt::Display for ParseEtinError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str("invalid ETIN: must be exactly 5 ASCII digits")
+        match self {
+            Self::Invalid => f.write_str("invalid ETIN: must be exactly 5 ASCII digits"),
+        }
     }
 }
 
@@ -41,7 +44,7 @@ impl FromStr for Etin {
         if s.len() == 5 && s.bytes().all(|b| b.is_ascii_digit()) {
             Ok(Self(s.to_owned()))
         } else {
-            Err(ParseEtinError { _private: () })
+            Err(ParseEtinError::Invalid)
         }
     }
 }
@@ -91,10 +94,10 @@ mod tests {
     }
 
     #[test]
-    fn equality_and_ord() {
+    fn equality() {
         let a = Etin::new("00001").unwrap();
         let b = Etin::new("00002").unwrap();
-        assert!(a < b);
+        assert_ne!(a, b);
         assert_eq!(a, a.clone());
     }
 }
