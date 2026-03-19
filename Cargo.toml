@@ -1,0 +1,11 @@
+[package]
+name = "etin"
+version = "0.1.0"
+edition = "2024"
+license = "Apache-2.0"
+description = "5-digit IRS Electronic Transmitter Identification Number (ETIN) type"
+repository = "https://github.com/gideonsolutions/etin"
+keywords = ["irs", "tax", "etin", "mef"]
+categories = ["data-structures"]
+
+[dependencies]
